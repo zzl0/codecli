@@ -4,11 +4,16 @@ from codecli.commands.end import end_branch
 
 def populate_argument_parser(parser):
     parser.add_argument('feature')
+    parser.add_argument('base_ref')
 
 
 def main(args):
     branch = args.feature
-    start(branch)
+    base_ref = args.base_ref
+    if base_ref:
+        start(branch, base_ref=base_ref)
+    else:
+        start(branch)
 
 
 def start(branch, remote='upstream', fetch_args=[], base_ref='upstream/master'):
@@ -27,4 +32,4 @@ def start(branch, remote='upstream', fetch_args=[], base_ref='upstream/master'):
             end_branch(branch, force=True)
 
     check_call(['git', 'fetch', remote] + fetch_args)
-    check_call(['git', 'checkout', '-b', branch, '--no-track', base_ref])
+    check_call(['git', 'checkout', '-b', branch, '--track', base_ref])

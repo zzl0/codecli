@@ -37,11 +37,18 @@ def get_base_branch(branch, remote='upstream', remote_branch=None):
             pr_id, remote, ref)]
         return remote, fetch_args, ref
 
-    return remote, [], remote_branch or 'master'
+    if remote_branch:
+        baseref = remote_branch.split('/')[-1]
+    else:
+        baseref = 'master'
+    return remote, [], baseref
 
 
 def merge_with_base(branch, rebase=False, remote='upstream',
                     remote_branch=None):
+    if not remote_branch:
+        remote_branch = getoutput(['git', 'rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}']).strip()
+
     remote, fetch_args, baseref = get_base_branch(branch, remote=remote,
                                                   remote_branch=remote_branch)
     check_call(['git', 'fetch', remote] + fetch_args)
